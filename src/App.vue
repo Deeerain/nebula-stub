@@ -1,7 +1,7 @@
 <script setup>
-import HelloWorld from './components/HelloWorld.vue'
+import Nebula404 from "./components/Nebula404.vue"
 </script>
 
 <template>
-  <HelloWorld />
+  <Nebula404 />
 </template>
