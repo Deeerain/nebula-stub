@@ -57,6 +57,10 @@
         <button @click="showDiagnostics = !showDiagnostics" class="btn-secondary">
           🔍 ТЕЛЕМЕТРИЯ
         </button>
+
+        <button @click="connectToProxy" class="btn-primary">
+          Connect To MTPROTO
+        </button>
       </div>
 
       <!-- Диагностика (маскировка под тех информацию) -->
@@ -118,7 +122,14 @@ import { ref, onMounted, onUnmounted } from 'vue'
 const isRetrying = ref(false)
 const showDiagnostics = ref(false)
 const retryCount = ref(0)
-
+const proxyUrl = import.meta.env.VITE_PROXY_URL
+// "tg://proxy?server=77.91.79.134&port=443&secret=ee25e0e49738c554d5285b4299dbc9404b79612e7275"
+const connectToProxy = () => {
+  console.log("URL:", proxyUrl);
+  console.log("ENV", import.meta.env)
+  console.log("ENV", window.__ENV__)
+  //window.navigation.navigate(proxyUrl)
+}
 
 // Симуляция переподключения
 const simulateRetry = () => {
