@@ -1,2 +1,5 @@
-/dist
 /node_modules
+/static
+Dockerfile
+*.md
+*.toml

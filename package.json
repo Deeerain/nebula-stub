@@ -8,7 +8,8 @@
   "main": "index.js",
   "scripts": {
     "sass:build": "sass assets/scss/style.scss static/style.css --style=compressed",
-    "sass:watch": "sass assets/scss/style.scss static/style.css --watch"
+    "sass:watch": "sass assets/scss/style.scss static/style.css --watch",
+    "build": "node index.js"
   },
   "devDependencies": {
     "sass": "^1.100.0"

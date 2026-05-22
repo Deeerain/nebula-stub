@@ -1,0 +1,26 @@
+services:
+  stub-server:
+    container_name: stub-server
+    build: .
+    environment:
+      - STUB_TELEMT_LISTEN=telemt:9091
+    ports:
+      - "8080:8080"
+    networks:
+      - test_net
+
+  telemt:
+    image: whn0thacked/telemt-docker:latest
+    container_name: stub_test_telemt
+    volumes:
+      - $PWD/telemt.toml:/etc/telemt.toml
+      - telemt_data:/etc/telemt:rw
+    networks:
+      - test_net
+  
+volumes:
+  telemt_data:
+
+networks:
+  test_net:
+    driver: bridge

@@ -1,0 +1,47 @@
+{{ define "content" }}
+
+<main>
+    <section id="main">
+        <div class="main-form">
+            <div class="main-form__header">
+                <span>NEBULA PROJECT</span>
+            </div>
+            <div class="main-form__body">
+                <div class="form-desc">
+                    <img src="/static/nabula.svg" alt="nebulasrv" srcset="" height="300" width="300">
+                    <nav class="nav">
+                        <a href="#proxy-list" class="btn text"><small>Proxy list</small></a>
+                    </nav>
+                </div>
+                <form class="form center" action="#">
+                    <h2>LOGIN</h2>
+                    <div class="form__item">
+                        <input type="email" placeholder="Email" name="email"/>
+                    </div>
+                    <div class="form__item">
+                        <input type="password" placeholder="Password" name="password"/>
+                    </div>
+                    <div class="form__item">
+                        <input class="btn" type="submit" value="Login"/>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <section id="proxy-list">
+        <div class="proxy-list">
+            <div class="proxy-list__header">
+                <a href="/" class="btn text"><</a>
+                <h2>Proxy list</h2>
+            </div>
+            <div class="proxy-list__body">
+                <div class="proxy-item">
+                    {{ $conn := index .Data.data 0 "links" "tls" 0 }}
+                    <a href="{{ $conn | safeURL }}" class="btn">Connect MTProto</a>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+{{ end }}
