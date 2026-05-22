@@ -1,0 +1,68 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
+:root{
+    font-family: "Space Mono", monospace;
+    font-weight: 400;
+    font-size: 18pt;
+    font-style: normal;
+}
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.btn, input {
+    outline: none;
+    background: none;
+    text-decoration: none;
+    border: none;
+}
+
+
+body {
+    overflow: hidden;
+}
+
+header {
+    position: fixed;
+}
+
+section {
+    height: 100vh;
+    width: 100vw;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: radial-gradient(ellipse at center, #0a0a1a 0%, #05050a 100%);
+}
+
+.main-form {
+    padding: 1rem;
+    background-color: white;
+    border-radius: .5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.form-wrapper h1 {
+    width: 100%;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.form .btn {
+    background-color: #05050a;
+    color: white;
+}
