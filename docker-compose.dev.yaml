@@ -3,7 +3,7 @@ services:
     container_name: stub-server
     build: .
     environment:
-      - STUB_TELEMT_LISTEN=telemt:9091
+      - STUB_TELEMT_HOST=telemt
     ports:
       - "8080:8080"
     networks:
