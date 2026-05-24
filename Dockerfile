@@ -1,5 +1,4 @@
-ARG APP_NAME=app
-
+# STAICFILES BUILDER
 FROM node:alpine as web-build
 
 WORKDIR /app
@@ -11,28 +10,28 @@ COPY assets/ ./assets
 RUN npm i && npm run sass:build
 RUN cp -r ./assets/*/**.svg ./static
 
+# APPLICATION BUILDER
 FROM golang:alpine as server-build
-ARG APP_NAME
-
 
 WORKDIR /app
 
-COPY go.mod ./
-COPY main.go ./
-COPY templates ./templates
-COPY --from=web-build /app/static/ ./static
+COPY go.mod .
+COPY internal/ ./internal/
+COPY cmd/ ./cmd/
+COPY --from=web-build /app/static/ ./cmd/server/static
 
-RUN go build -o ${APP_NAME}
+RUN echo | ls -lar
+
+RUN go build cmd/server/main.go
 
 # APPLICTION
 FROM alpine
 
-ARG APP_NAME
-ENV APP_NAME=${APP_NAME}
+ENV STUB_HOST=${STUB_HOST:-0.0.0.0}
 ENV STUB_PORT=${STUB_PORT:-8080}
-ENV STUB_TELEMT_LISTEN=${STUB_TELEMT_LISTEN:-localhost:9091}
+ENV STUB_TELEMT_HOST=${STUB_TELEMT_HOST:-localhost:9091}
 
 WORKDIR /app
 
-COPY --from=server-build /app/app ./
-ENTRYPOINT $PWD/$APP_NAME
+COPY --from=server-build /app/main ./
+ENTRYPOINT $PWD/main
