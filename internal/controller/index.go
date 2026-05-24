@@ -1,8 +1,6 @@
 package controller
 
 import (
-	"fmt"
-	"log"
 	"log/slog"
 	"main/internal/logger"
 	"main/internal/model"
@@ -41,9 +39,11 @@ func (c *IndexController) Index(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	telemtData, err := c.telemtService.GetConnections()
-	if err != nil {
-		log.Println(fmt.Errorf("failed to get connections: %w", err))
+	if err != nil || telemtData["success"] != true {
+		c.logger.Error("Failed to get connections", "error", err)
 	}
+
+	c.logger.Info("Load telemt connections", "connections", &telemtData)
 
 	pd := model.PageData[map[string]any]{
 		Title: "NEBULA",

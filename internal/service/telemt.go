@@ -20,7 +20,7 @@ func NewTelemtService(host string, port int) *TelemtService {
 }
 
 func (s *TelemtService) GetConnections() (map[string]any, error) {
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s/users", s.baseUrl), nil)
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/v1/users", s.baseUrl), nil)
 	if err != nil {
 		log.Fatalln("failed to create request: ", err.Error())
 	}
@@ -36,5 +36,10 @@ func (s *TelemtService) GetConnections() (map[string]any, error) {
 		return nil, fmt.Errorf("failed to decode body: %w", err)
 	}
 
-	return data, nil
+	switch response.StatusCode {
+	case 200:
+		return data, nil
+	default:
+		return nil, fmt.Errorf("Telemt error: %v", data["error"])
+	}
 }

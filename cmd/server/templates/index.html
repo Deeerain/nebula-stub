@@ -29,6 +29,8 @@
         </div>
     </section>
 
+    {{ if .Data.data }}
+    {{ $conn := index .Data.data 0 "links" "tls" 0 }}
     <section id="proxy-list">
         <div class="proxy-list">
             <div class="proxy-list__header">
@@ -37,11 +39,11 @@
             </div>
             <div class="proxy-list__body">
                 <div class="proxy-item">
-                    {{ $conn := index .Data.data 0 "links" "tls" 0 }}
                     <a href="{{ $conn | safeURL }}" class="btn">Connect MTProto</a>
                 </div>
             </div>
         </div>
     </section>
+    {{ end }}
 </main>
 {{ end }}
