@@ -7,8 +7,8 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "sass:build": "sass assets/scss/style.scss cmd/server/static/style.css --style=compressed",
-    "sass:watch": "sass assets/scss/style.scss cmd/server/style.css --watch",
+    "sass:build": "sass assets/scss/style.scss static/style.css --style=compressed",
+    "sass:watch": "sass assets/scss/style.scss server/style.css --watch",
     "build": "node index.js"
   },
   "devDependencies": {
