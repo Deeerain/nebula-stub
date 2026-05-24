@@ -1,6 +1,7 @@
 package config
 
 import (
+	"log/slog"
 	"os"
 	"strconv"
 )
@@ -14,9 +15,9 @@ const (
 
 type Config struct {
 	Listen        string `json:"listen"`
-	Port          int64  `json:"port"`
+	Port          int    `json:"port"`
 	TelemtHost    string `json:"telemt_host"`
-	TelemtPort    int64  `json:"telemt_port"`
+	TelemtPort    int    `json:"telemt_port"`
 	defaultConfig *Config
 }
 
@@ -63,17 +64,19 @@ func FromEnv() *Config {
 	)
 
 	if port, err = strconv.ParseInt(os.Getenv("STUB_PORT"), 10, 64); err != nil || port <= 0 {
+		slog.Warn("Failed to parse", "port", port, "error", err)
 		port = -1
 	}
 
 	if telemt_port, err = strconv.ParseInt(os.Getenv("STUB_TELEMT_PORT"), 10, 64); err != nil || telemt_port <= 0 {
+		slog.Warn("Failed to parse", "port", port, "error", err)
 		telemt_port = -1
 	}
 
 	return &Config{
 		Listen:     os.Getenv("STUB_HOST"),
-		Port:       port,
+		Port:       int(port),
 		TelemtHost: os.Getenv("STUB_TELEMT_HOST"),
-		TelemtPort: telemt_port,
+		TelemtPort: int(telemt_port),
 	}
 }

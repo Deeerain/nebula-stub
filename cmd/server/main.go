@@ -21,6 +21,7 @@ var embeddedFS embed.FS
 func main() {
 	// Vars
 	config := config.FromEnv()
+	config.Validate()
 	logger.Init("local", slog.LevelDebug)
 	logger := slog.Default()
 	bindAddress := fmt.Sprintf("%s:%v", config.Listen, config.Port)
