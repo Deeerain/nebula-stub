@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="500mm"
+   height="500mm"
+   viewBox="0 0 500 500"
+   version="1.1"
+   id="svg1"
+   inkscape:export-filename="nebula_logo_black.png"
+   inkscape:export-xdpi="25.4"
+   inkscape:export-ydpi="25.4"
+   inkscape:version="1.4.3 (0d15f75042, 2025-12-25)"
+   sodipodi:docname="nebula_logo.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="px"
+     inkscape:zoom="0.38796647"
+     inkscape:cx="799.03812"
+     inkscape:cy="964.00083"
+     inkscape:window-width="1908"
+     inkscape:window-height="1031"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer2"
+     showguides="false"
+     showgrid="true">
+    <inkscape:grid
+       id="grid36"
+       units="mm"
+       originx="0"
+       originy="0"
+       spacingx="0.99999999"
+       spacingy="0.99999999"
+       empcolor="#0099e5"
+       empopacity="0.30196078"
+       color="#0099e5"
+       opacity="0.14901961"
+       empspacing="5"
+       enabled="true"
+       visible="true" />
+    <sodipodi:guide
+       position="249.86116,531.24829"
+       orientation="0,-1"
+       id="guide36"
+       inkscape:locked="false" />
+  </sodipodi:namedview>
+  <defs
+     id="defs1">
+    <inkscape:path-effect
+       effect="spiro"
+       id="path-effect36"
+       is_visible="true"
+       lpeversion="1" />
+    <inkscape:path-effect
+       effect="dashed_stroke"
+       message=""
+       id="path-effect35"
+       is_visible="true"
+       lpeversion="1"
+       numberdashes="3"
+       holefactor="0"
+       splitsegments="true"
+       halfextreme="true"
+       unifysegment="true" />
+    <inkscape:path-effect
+       effect="rough_hatches"
+       id="path-effect34"
+       is_visible="true"
+       lpeversion="1.2"
+       direction="95.02969,92.424441 , 12.52766,0"
+       dist_rdm="75;1"
+       growth="0"
+       do_bend="true"
+       bender="95.02969,97.424441 , 5,0"
+       bottom_edge_variation="7.4431118;1"
+       top_edge_variation="7.4431118;1"
+       bottom_tgt_variation="0;1"
+       top_tgt_variation="0;1"
+       scale_bf="1"
+       scale_bb="1"
+       scale_tf="1"
+       scale_tb="1"
+       top_smth_variation="0;1"
+       bottom_smth_variation="0;1"
+       fat_output="true"
+       stroke_width_top="1"
+       stroke_width_bottom="1"
+       front_thickness="1"
+       back_thickness="0.25" />
+    <inkscape:path-effect
+       effect="powerstroke"
+       message=""
+       id="path-effect32"
+       is_visible="true"
+       lpeversion="1.3"
+       scale_width="0"
+       interpolator_type="CentripetalCatmullRom"
+       interpolator_beta="0.2"
+       start_linecap_type="zerowidth"
+       end_linecap_type="zerowidth"
+       offset_points="17.5,0.1322915"
+       linejoin_type="round"
+       miter_limit="4"
+       not_jump="false"
+       sort_points="true" />
+    <inkscape:path-effect
+       effect="fill_between_many"
+       method="bsplinespiro"
+       autoreverse="false"
+       close="false"
+       join="false"
+       linkedpaths="#path6,0,1"
+       id="path-effect33"
+       is_visible="true"
+       lpeversion="0" />
+  </defs>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="Слой 2">
+    <path
+       id="path6"
+       style="fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.264583"
+       d="m 78.873569,60.208882 -1.194243,7.769035 -7.704956,1.554427 7.769035,1.194242 1.55391,7.704957 0.941028,-6.12004 c 10.958714,4.497781 19.540587,4.742352 28.261327,5.235339 h 5.1e-4 l 0.65785,0.290938 -1.17926,3.255099 2.22054,-2.477885 c 1.49619,10.897315 4.13616,21.932306 -6.47299,31.368626 l -8.092534,-10.377143 2.969845,13.852383 -15.400094,4.56458 15.173234,1.6707 -0.0615,14.94586 6.407879,-12.81989 15.36186,4.67258 -11.21276,-9.59373 9.55549,-12.05818 -7.27345,3.75791 c 3.75097,-8.45063 1.84255,-19.110015 -0.86713,-30.081881 l 0.002,-0.0021 2.73162,2.127002 -1.7384,-2.994133 2.86701,-1.939933 -3.38429,0.727604 -0.95963,-3.326412 -0.35347,3.444234 -3.46025,-0.115755 2.34714,1.03818 C 98.676756,76.459603 90.052578,73.805963 81.93023,70.372603 l 6.266801,-1.264006 -7.769035,-1.194242 z"
+       transform="matrix(4.8072343,0,0,4.8072343,-226.01656,-221.83951)"
+       inkscape:linked-fill="path33" />
+  </g>
+  <g
+     inkscape:label="Слой 1"
+     inkscape:groupmode="layer"
+     id="layer1" />
+</svg>

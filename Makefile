@@ -1,21 +1,21 @@
-bin=app
-static_dir=static
+build_folder=${PWD}/cmd/server/
+static_dir=${build_folder}/static
 docker_compose_file=${PWD}/docker-compose.dev.yaml
 
 build-styles:
 	@mkdir -p ${PWD}/${static_dir}
 	@npm run sass:build
-	@cp -r ${PWD}/assets/*/**.svg ${PWD}/${static}
+	@cp -r ${PWD}/assets/*/**.svg ${static_dir}
 
 build-app:
-	@go build -o ${PWD}/${bin}
+	@go build ${build_folder}
 
 clean:
-	@rm -rf ${PWD}/${static_dir}
-	@rm -rf ${PWD}/${bin}
+	@rm -rf ${PWD}/${build_folder}/${static_dir}
+	@rm -rf ${static_dir}
 
 run: build-styles build-app
-	@${PWD}/${bin}
+	@${PWD}/server
 
 up-build:
 	@docker compose -f ${docker_compose_file} up --build
