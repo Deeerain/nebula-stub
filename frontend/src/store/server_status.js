@@ -19,7 +19,7 @@ export const useServerStatus = defineStore('server', {
     actions: {
         async loadStatuses() {
             const resp = await axios.get('status')
-            this.serverStatuses = JSON.parse(resp.data)
+            this.serverStatuses = resp.data
         }
     }
 })
