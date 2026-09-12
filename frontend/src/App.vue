@@ -1,21 +1,27 @@
 <script setup>
 import { onMounted, ref } from 'vue';
-import HelloWorld from './components/HelloWorld.vue'
-
-const user = ref(null)
-
-onMounted(async () => {
-  const tg = window.Telegram?.WebApp
-
-  user.value = tg.initDataUnsafe?.user
-
-  if (tg) {
-    tg.ready()
-    tg.expand()
-  }
-})
+import ServiceStatus from './components/ServiceStatus.vue';
 </script>
 
 <template>
-  <h1>Hello {{ user }}</h1>
+  <header>
+    <h1>nebula</h1>
+  </header>
+  <main>
+    <ServiceStatus/>
+  </main>
 </template>
+
+<style lang="css">
+header {
+  text-transform: uppercase;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  flex-grow: 1;
+  padding: 5px;
+}
+</style>
