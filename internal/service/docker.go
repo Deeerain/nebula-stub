@@ -8,8 +8,8 @@ import (
 )
 
 type DockerContainer struct {
-	Name  string
-	Satus string
+	Name  string `json:"name"`
+	Satus string `json:"status"`
 }
 
 type DockerService interface {
