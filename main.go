@@ -1,16 +1,29 @@
 package main
 
 import (
+	"embed"
 	"fmt"
+	"io/fs"
 	"log/slog"
 	"net/http"
 
-	nebulastub "github.com/deeerain/nebula-stub"
 	"github.com/deeerain/nebula-stub/internal/config"
 	"github.com/deeerain/nebula-stub/internal/logger"
 	"github.com/deeerain/nebula-stub/internal/middlewares"
 	"github.com/deeerain/nebula-stub/internal/server"
 )
+
+//go:embed frontend/dist/*
+var embeddedFiles embed.FS
+
+func Assets() fs.FS {
+	distFS, err := fs.Sub(embeddedFiles, "frontend/dist")
+	if err != nil {
+		panic(err)
+	}
+
+	return distFS
+}
 
 func main() {
 	// Vars
@@ -21,7 +34,7 @@ func main() {
 	bindAddress := fmt.Sprintf("%s:%v", config.Listen, config.Port)
 	var err error
 
-	frontednFS := nebulastub.Asstest()
+	frontednFS := Assets()
 
 	server := server.New(logger)
 

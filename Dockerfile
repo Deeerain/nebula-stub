@@ -3,12 +3,14 @@ FROM node:alpine as web-build
 
 WORKDIR /app
 
-COPY package.json .
-COPY package-lock.json .
-COPY assets/ ./assets
+COPY frontend/package.json /app/
+COPY frontend/package-lock.json /app/
+COPY frontend/vite.config.js /app/
+COPY frontend/public/ /app/public/
+COPY frontend/src/ /app/src
+COPY frontend/index.html /app/
 
-RUN npm i && npm run sass:build
-RUN cp -r ./assets/*/**.svg ./static
+RUN npm i && npm run build
 
 # APPLICATION BUILDER
 FROM golang:alpine as server-build
@@ -17,12 +19,12 @@ WORKDIR /app
 
 COPY go.mod .
 COPY internal/ ./internal/
-COPY cmd/ ./cmd/
-COPY --from=web-build /app/static/ ./cmd/server/static
+COPY main.go .
+COPY --from=web-build /app/dist /app/frontend/dist
 
 RUN echo | ls -lar
 
-RUN go build cmd/server/main.go
+RUN go build main.go
 
 # APPLICTION
 FROM alpine
