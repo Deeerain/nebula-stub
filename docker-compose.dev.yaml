@@ -4,6 +4,8 @@ services:
     build: .
     environment:
       - STUB_TELEMT_HOST=telemt
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "8080:8080"
     networks:

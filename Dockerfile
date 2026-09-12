@@ -18,11 +18,13 @@ FROM golang:alpine as server-build
 WORKDIR /app
 
 COPY go.mod .
+COPY go.sum .
 COPY internal/ ./internal/
 COPY main.go .
 COPY --from=web-build /app/dist /app/frontend/dist
 
 RUN echo | ls -lar
+RUN echo | ls -lar ./internal
 
 RUN go build main.go
 
