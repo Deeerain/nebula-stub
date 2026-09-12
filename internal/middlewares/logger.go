@@ -1,9 +1,10 @@
 package middlewares
 
 import (
-	"main/internal/logger"
 	"net/http"
 	"time"
+
+	"github.com/deeerain/nebula-stub/internal/logger"
 )
 
 func LoggingMiddleware(logger logger.Logger) Middleware {

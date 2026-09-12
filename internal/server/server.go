@@ -3,10 +3,11 @@ package server
 import (
 	"fmt"
 	"log/slog"
-	"main/internal/logger"
-	"main/internal/middlewares"
 	"net"
 	"net/http"
+
+	"github.com/deeerain/nebula-stub/internal/logger"
+	"github.com/deeerain/nebula-stub/internal/middlewares"
 )
 
 type Server struct {

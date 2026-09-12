@@ -11,13 +11,5 @@ build-app:
 	@cp -r ${static_dir} ${build_folder}
 	@go build ${build_folder}
 
-clean:
-	@rm -rf ${build_folder}/static
-	@rm -rf ${static_dir}
-	@rm -rf server
-
-run: build-styles build-app
-	@${PWD}/server
-
 up-build:
 	@docker compose -f ${docker_compose_file} up --build
