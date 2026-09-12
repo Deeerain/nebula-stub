@@ -1,6 +1,13 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 import ServiceStatus from './components/ServiceStatus.vue';
+import MiniApp from './components/MiniApp.vue';
+import { useUserStore } from './store/user.js';
+
+const userStore = useUserStore()
+onMounted(async () => {
+  userStore.init()
+})
 </script>
 
 <template>
@@ -8,7 +15,8 @@ import ServiceStatus from './components/ServiceStatus.vue';
     <h1>nebula</h1>
   </header>
   <main>
-    <ServiceStatus/>
+    <MiniApp v-if="userStore.tgInited"/>
+    <ServiceStatus v-else/>
   </main>
 </template>
 
