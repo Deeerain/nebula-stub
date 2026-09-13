@@ -23,9 +23,6 @@ COPY internal/ ./internal/
 COPY main.go .
 COPY --from=web-build /app/dist /app/frontend/dist
 
-RUN echo | ls -lar
-RUN echo | ls -lar ./internal
-
 RUN go build main.go
 
 # APPLICTION
