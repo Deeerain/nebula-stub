@@ -3,6 +3,14 @@ import { createPinia } from 'pinia'
 import './style.css'
 import axios from 'axios'
 import App from './App.vue'
+import { initTelegramMock } from './telegram-mock.js'
+
+if (import.meta.env.DEV) {
+    console.warn(import.meta.env.DEV, "initing Telegram mock")
+    initTelegramMock()
+}
+
+
 
 axios.defaults.baseURL = "/api/"
 

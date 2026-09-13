@@ -5,6 +5,10 @@ export const useUserStore = defineStore('user', {
         {
             tg: undefined,
             tgInited: false,
+            subscriptions: [
+                { name: "test 1", connections: [{name: "connection 1"}] },
+                { name: "test 2", connections: [{name: "connection 2"}] },
+            ],
         }
     ),
     actions: {
