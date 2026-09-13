@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import axios from 'axios'
 
 export const useUserStore = defineStore('user', {
     state: () => (
@@ -9,6 +10,7 @@ export const useUserStore = defineStore('user', {
                 { name: "test 1", connections: [{name: "connection 1"}] },
                 { name: "test 2", connections: [{name: "connection 2"}] },
             ],
+            clinets: []
         }
     ),
     actions: {
@@ -20,6 +22,14 @@ export const useUserStore = defineStore('user', {
                 console.log("Telegram mini app inited")
                 this.tg.ready()
                 this.tg.expand()
+
+                const clientResponse = await axios.get(clients, {
+                    headers: {
+                        Authorization: `Bearer ${this.tg.initData}`
+                    }
+                })
+
+                this.clinets = clientResponse.data
             }
         }
     },
