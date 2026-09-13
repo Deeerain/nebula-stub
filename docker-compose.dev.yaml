@@ -4,6 +4,8 @@ services:
     build: .
     environment:
       - STUB_TELEMT_HOST=telemt
+      - XUI_URL=${XUI_URL}
+      - XUI_API_TOKEN=${XUI_API_TOKEN}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
