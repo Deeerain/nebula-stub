@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"io/fs"
 	"log/slog"
 	"net"
 	"net/http"
@@ -41,6 +42,10 @@ func (s *Server) Handle(pattern string, handler http.Handler) {
 
 func (s *Server) HandleFunc(pattern string, handler http.HandlerFunc) {
 	s.mux.HandleFunc(pattern, handler)
+}
+
+func (s *Server) HandleFS(pattern string, fs fs.FS) {
+	s.mux.Handle(pattern, http.FileServer(http.FS(fs)))
 }
 
 func (s *Server) Run(listen string) error {
