@@ -57,6 +57,7 @@ func main() {
 	xrayService := service.NewXrayService(xuiUrl, xuiToken)
 
 	botToken := os.Getenv("TELEGRAM_BOT_TOKEN")
+	telegramWebhookUrl := os.Getenv("TELEGRAM_WEBHOOK")
 
 	telegramService, err := service.NewTelegramService(botToken)
 	if err != nil {
@@ -67,6 +68,10 @@ func main() {
 	server.HandleFunc("/tgwebhook", handlers.WebHook(telegramService))
 	server.HandleFunc("/api/status", handlers.GetContainerStatuses(ctx, dockerService))
 	server.HandleFunc("/api/client", handlers.GetClinet(ctx, xrayService))
+
+	if err := telegramService.SetWebhook(telegramWebhookUrl); err != nil {
+		slog.Warn("telegram webhook not set", "error", err)
+	}
 
 	// Run
 	if err = server.Run(bindAddress); err != nil {
