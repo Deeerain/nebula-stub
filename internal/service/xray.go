@@ -46,24 +46,14 @@ type xuiService struct {
 }
 
 func (s *xuiService) GetClinetByTgID(telegramID int64) ([]ClientData, error) {
-	url := s.baseURL.JoinPath("clients/get/tgId/")
-	url = url.JoinPath(fmt.Sprint(telegramID))
+	url := s.baseURL.JoinPath("clients/get/tgId/").JoinPath(fmt.Sprint(telegramID))
 
-	req, err := http.NewRequest(http.MethodGet, url.String(), nil)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create request: %w", err)
-	}
-
-	resp, err := s.do(req)
+	resp, err := s.get(url.String())
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute: %w", err)
 	}
 
-	var data struct {
-		Success bool         `json:"success"`
-		Msg     string       `json:"msg"`
-		Obj     []ClientData `json:"obj"`
-	}
+	var data ApiResponse[[]ClientData]
 
 	err = json.NewDecoder(resp.Body).Decode(&data)
 	if err != nil {
@@ -76,12 +66,7 @@ func (s *xuiService) GetClinetByTgID(telegramID int64) ([]ClientData, error) {
 func (s *xuiService) GetLinksByEmail(email string) ([]string, error) {
 	url := s.baseURL.JoinPath("clients/get/links").JoinPath(email)
 
-	req, err := http.NewRequest(http.MethodGet, url.String(), nil)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create request: %w", err)
-	}
-
-	resp, err := s.do(req)
+	resp, err := s.get(url.String())
 	if err != nil {
 		return nil, fmt.Errorf("failed to get response: %w", err)
 	}
@@ -99,12 +84,7 @@ func (s *xuiService) GetLinksByEmail(email string) ([]string, error) {
 func (s *xuiService) GetSubLinks(subId string) ([]string, error) {
 	url := s.baseURL.JoinPath("clients/subLinks").JoinPath(subId)
 
-	req, err := http.NewRequest(http.MethodGet, url.String(), nil)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get response: %w", err)
-	}
-
-	resp, err := s.do(req)
+	resp, err := s.get(url.String())
 	if err != nil {
 		return nil, fmt.Errorf("failed to get response: %w", err)
 	}
@@ -127,6 +107,12 @@ func (s *xuiService) do(req *http.Request) (*http.Response, error) {
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", s.apiToken))
 	req.Header.Set("Content-type", "application/json")
 	return s.httpClient.Do(req)
+}
+
+func (s *xuiService) get(url string) (*http.Response, error) {
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	resp, err := s.do(req)
+	return resp, err
 }
 
 func NewXrayService(baseURL *url.URL, apiToken string) XrayService {
