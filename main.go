@@ -56,7 +56,15 @@ func main() {
 	xuiToken := os.Getenv("XUI_API_TOKEN")
 	xrayService := service.NewXrayService(xuiUrl, xuiToken)
 
+	botToken := os.Getenv("TELEGRAM_BOT_TOKEN")
+
+	telegramService, err := service.NewTelegramService(botToken)
+	if err != nil {
+		slog.Warn("telegram service not inited", "error", err)
+	}
+
 	server.HandleFS("/", frontednFS)
+	server.HandleFunc("/tgwebhook", handlers.WebHook(telegramService))
 	server.HandleFunc("/api/status", handlers.GetContainerStatuses(ctx, dockerService))
 	server.HandleFunc("/api/client", handlers.GetClinet(ctx, xrayService))
 
