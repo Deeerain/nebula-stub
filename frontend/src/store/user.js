@@ -14,7 +14,7 @@ export const useUserStore = defineStore('user', {
         }
     ),
     actions: {
-        init() {
+        async init() {
             this.tg = window.Telegram?.WebApp
             this.tgInited = this.tg.initData != ""
 
