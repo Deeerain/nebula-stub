@@ -43,7 +43,7 @@ func main() {
 	frontednFS := Assets()
 
 	server := server.New(logger)
-	server.Use(middlewares.CommonMiddleware())
+	// server.Use(middlewares.CommonMiddleware())
 	server.Use(middlewares.LoggingMiddleware(logger))
 
 	dockerService, err := service.NewDockerService()

@@ -2,9 +2,9 @@ package handlers
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
 
+	"github.com/deeerain/nebula-stub/internal/server"
 	"github.com/deeerain/nebula-stub/internal/service"
 )
 
@@ -19,6 +19,6 @@ func GetContainerStatuses(ctx context.Context, dockerService service.DockerServi
 			http.Error(w, err.Error(), http.StatusServiceUnavailable)
 		}
 
-		json.NewEncoder(w).Encode(containers)
+		server.WriteJSON(w, containers)
 	}
 }

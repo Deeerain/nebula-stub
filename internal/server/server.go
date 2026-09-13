@@ -1,6 +1,7 @@
 package server
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/fs"
 	"log/slog"
@@ -58,4 +59,13 @@ func (s *Server) Run(listen string) error {
 
 	chain := middlewares.Chain(s.mux, s.middlewares...)
 	return http.Serve(listenr, chain)
+}
+
+func WriteJSON(w http.ResponseWriter, obj any) error {
+	w.Header().Set("Content-type", "application/json")
+	return json.NewEncoder(w).Encode(obj)
+}
+
+func ReadJSON(r *http.Request, obj any) error {
+	return json.NewDecoder(r.Body).Decode(obj)
 }
