@@ -1,15 +1,5 @@
-build_folder=${PWD}/cmd/server/
-static_dir=${PWD}/static
-docker_compose_file=${PWD}/docker-compose.dev.yaml
+build-frontend:
+	@cd frontend && npm run build -- -m dev
 
-build-styles:
-	@mkdir -p ${PWD}/${static_dir}
-	@npm run sass:build
-	@cp -r ${PWD}/assets/*/**.svg ${static_dir}
-
-build-app:
-	@cp -r ${static_dir} ${build_folder}
-	@go build ${build_folder}
-
-up-build:
-	@docker compose -f ${docker_compose_file} up --build
+run-dev: build-frontend
+	@go run main.go

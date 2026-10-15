@@ -7,12 +7,17 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"sort" // Добавлено для сортировки
 	"strconv"
 	"strings"
 	"time"
 )
 
 func ValidateTelegramInitData(botToken string, initDataRaw string, expDuration time.Duration) (url.Values, error) {
+	if botToken == "" {
+		return nil, fmt.Errorf("bot token is empty")
+	}
+
 	queryParams, err := url.ParseQuery(initDataRaw)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse initData: %w", err)
@@ -40,28 +45,34 @@ func ValidateTelegramInitData(botToken string, initDataRaw string, expDuration t
 		}
 	}
 
+	// 1. Собираем ключи и обязательно сортируем их по алфавиту
 	var keys []string
 	for k := range queryParams {
 		if k != "hash" {
 			keys = append(keys, k)
 		}
 	}
+	sort.Strings(keys) // <- КРИТИЧЕСКИЙ ИСПРАВЛЕННЫЙ ШАГ
 
+	// 2. Формируем data_check_string
 	var dataPairs []string
 	for _, k := range keys {
 		dataPairs = append(dataPairs, fmt.Sprintf("%s=%s", k, queryParams.Get(k)))
 	}
 	dataCheckString := strings.Join(dataPairs, "\n")
 
+	// 3. Вычисляем Secret Key (HMAC-SHA256 от токена бота с ключом "WebAppData")
 	macSeed := hmac.New(sha256.New, []byte("WebAppData"))
 	macSeed.Write([]byte(botToken))
 	secretKey := macSeed.Sum(nil)
 
+	// 4. Вычисляем финальный хеш от dataCheckString
 	macHash := hmac.New(sha256.New, secretKey)
 	macHash.Write([]byte(dataCheckString))
 	calculateHashBytes := macHash.Sum(nil)
 	calculateHashHex := hex.EncodeToString(calculateHashBytes)
 
+	// 5. Безопасное сравнение подписей во избежание атак по времени (Timing Attacks)
 	if !hmac.Equal([]byte(calculateHashHex), []byte(hashHex)) {
 		return nil, errors.New("invalid signature (hash mismatch)")
 	}

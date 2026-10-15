@@ -1,8 +1,23 @@
 <script setup>
+import { onMounted } from 'vue';
 import { useUserStore } from '../store/user';
+import SubscriptionInfo from './SubscriptionInfo.vue';
 
 
 const userStore = useUserStore()
+
+onMounted(async () => {
+    try {
+        await userStore.loadUserData()
+    } finally {
+        try {
+            await userStore.loadSubscriptions()
+        } catch(err) {
+            console.error(err)
+        }
+    }
+})
+
 </script>
 
 <template>
@@ -18,14 +33,10 @@ const userStore = useUserStore()
             </button>
         </div>
     </div>
+    <SubscriptionInfo/>
     <div class="subscriptions">
-        <div class="subscription__item subscription" v-for="sub, subIndex in userStore.subscriptions" :key="subIndex">
-            <h3>{{ sub.name }}</h3>
-            <div class="subscription__connections">
-                <div class="connection" v-for="conn, connIndex in sub.connections">
-                    <h4>{{ conn.name }}</h4>
-                </div>
-            </div>
+        <div class="subscription__item subscription" v-for="sub, subIndex in userStore.get_links" :key="subIndex">
+            {{ subIndex}} {{ sub }}
         </div>
     </div>
 </template>

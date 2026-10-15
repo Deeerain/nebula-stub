@@ -3,18 +3,18 @@ package main
 import (
 	"context"
 	"embed"
-	"fmt"
 	"io/fs"
 	"log/slog"
+	"net/http"
 	"net/url"
 	"os"
 
-	"github.com/deeerain/nebula-stub/internal/config"
 	"github.com/deeerain/nebula-stub/internal/handlers"
 	"github.com/deeerain/nebula-stub/internal/logger"
 	"github.com/deeerain/nebula-stub/internal/middlewares"
 	"github.com/deeerain/nebula-stub/internal/server"
 	"github.com/deeerain/nebula-stub/internal/service"
+	"github.com/deeerain/nebula-stub/internal/xui"
 )
 
 //go:embed frontend/dist/*
@@ -30,12 +30,11 @@ func Assets() fs.FS {
 }
 
 func main() {
+
+	slog.SetLogLoggerLevel(slog.LevelDebug)
 	// Vars
-	config := config.FromEnv()
-	config.Validate()
 	logger.Init("local", slog.LevelDebug)
 	logger := slog.Default()
-	bindAddress := fmt.Sprintf("%s:%v", config.Listen, config.Port)
 	var err error
 
 	ctx := context.Background()
@@ -54,27 +53,38 @@ func main() {
 
 	xuiUrl, _ := url.Parse(os.Getenv("XUI_URL"))
 	xuiToken := os.Getenv("XUI_API_TOKEN")
-	xrayService := service.NewXrayService(xuiUrl, xuiToken)
+	xuiClient := xui.NewApiClient(xuiUrl, xuiToken)
+	xrayService := xui.NewXuiService(xuiClient)
 
 	botToken := os.Getenv("TELEGRAM_BOT_TOKEN")
-	telegramWebhookUrl := os.Getenv("TELEGRAM_WEBHOOK")
+	// telegramWebhookUrl := os.Getenv("TELEGRAM_WEBHOOK")
 
 	telegramService, err := service.NewTelegramService(botToken)
 	if err != nil {
 		slog.Warn("telegram service not inited", "error", err)
 	}
 
-	server.HandleFS("/", frontednFS)
-	server.HandleFunc("/tgwebhook", handlers.WebHook(telegramService))
-	server.HandleFunc("/api/status", handlers.GetContainerStatuses(ctx, dockerService))
-	server.HandleFunc("/api/client", handlers.GetClinet(ctx, xrayService))
+	// getSubscriptionUseCase := usecase.NewGetSubscriptionUseCase(xrayService)
 
-	if err := telegramService.SetWebhook(telegramWebhookUrl); err != nil {
-		slog.Warn("telegram webhook not set", "error", err)
+	handlers := map[string]http.HandlerFunc{
+		"/tgwebhook":              handlers.WebHook(telegramService),
+		"/api/status":             handlers.GetContainerStatuses(ctx, dockerService),
+		"/api/client":             handlers.GetClinet(ctx, xrayService),
+		"/api/subscriptions/{id}": handlers.GetLinks(ctx, xrayService),
+		// "/api/client/:id/links": handlers.GetSubscriptionHandler(getSubscriptionUseCase),
 	}
 
+	for p, h := range handlers {
+		server.HandleFunc(p, h)
+	}
+	server.HandleFS("/", frontednFS)
+
+	// if err := telegramService.SetWebhook(telegramWebhookUrl); err != nil {
+	// 	slog.Warn("telegram webhook not set", "error", err)
+	// }
+
 	// Run
-	if err = server.Run(bindAddress); err != nil {
+	if err = server.Run(":8080"); err != nil {
 		logger.Error("failed to start listener", "error", err)
 	}
 

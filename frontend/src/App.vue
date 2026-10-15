@@ -5,15 +5,38 @@ import MiniApp from './components/MiniApp.vue';
 import { useUserStore } from './store/user.js';
 
 const userStore = useUserStore()
+
+function LoadScript(){
+  return new Promise((resolve, reject) => {
+      const url = new URL(window.location.href)
+      console.log(url)
+
+      if (url.hash.startsWith("#tgWebAppData")) {
+          console.log("Telegram mode")
+
+          const tgImport = document.createElement("script")
+          tgImport.src = "https://telegram.org/js/telegram-web-app.js?63"
+          tgImport.async = true;
+          tgImport.onload = () => resolve()
+          tgImport.onerror = (err) => reject(err);
+          document.head.appendChild(tgImport)   
+      }
+  })
+}
+
 onMounted(async () => {
-  await userStore.init()
+  try {
+
+    await LoadScript()
+    await userStore.init()
+
+    console.log(userStore.tg)
+  } catch (e) {
+  }
 })
 </script>
 
 <template>
-  <header>
-    <h1>nebula</h1>
-  </header>
   <main>
     <MiniApp v-if="userStore.tgInited"/>
     <ServiceStatus v-else/>

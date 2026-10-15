@@ -20,7 +20,6 @@ type telegramServie struct {
 
 func (t *telegramServie) SetWebhook(url string) error {
 	u := t.baseURL.JoinPath("setWebhook")
-	u.Query().Add("url", url)
 
 	resp, err := t.request(http.MethodGet, u.String(), nil)
 	if err != nil {
@@ -54,7 +53,7 @@ func (t *telegramServie) request(httpMethod string, url string, body io.Reader) 
 func NewTelegramService(token string) (Telegram, error) {
 	baseUrl, err := url.Parse(fmt.Sprintf("https://api.telegram.org/bot%s", token))
 	if err != nil {
-		fmt.Errorf("Failed to parse base url", err)
+		return nil, fmt.Errorf("Failed to parse base url: %w", err)
 	}
 
 	return &telegramServie{
