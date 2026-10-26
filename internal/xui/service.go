@@ -2,14 +2,12 @@ package xui
 
 import (
 	"fmt"
-	"sync"
 
 	"github.com/deeerain/nebula-stub/internal/client"
 )
 
 type XuiService struct {
 	apiClient *ApiClient
-	lock      sync.Mutex
 }
 
 func (s *XuiService) GetClientByTgID(id int64) (client.ProxyClient, error) {
@@ -47,15 +45,6 @@ func (s *XuiService) GetLinksBySubID(subID string) ([]string, error) {
 	}
 
 	return links, nil
-}
-
-func (s *XuiService) GetSubscription(subId SubscriptionID) (any, error) {
-	subLinks, err := s.apiClient.GetSubLinks(string(subId))
-	if err != nil {
-		return nil, fmt.Errorf("failed to get subscriptions: %w", err)
-	}
-
-	return subLinks, nil
 }
 
 func NewXuiService(client *ApiClient) *XuiService {

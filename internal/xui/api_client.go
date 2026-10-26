@@ -2,7 +2,6 @@ package xui
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -32,20 +31,10 @@ type ClientData struct {
 	UsedTraffic int    `json:"usedTraffic"`
 }
 
-type Connection struct {
-}
-
-type Subscription struct {
-}
-
 type ApiClient struct {
 	baseURL    *url.URL
 	httpClient *http.Client
 	apiToken   string
-}
-
-func (s *ApiClient) GetSubscriptionsByTgID(telegramID int64) ([]string, error) {
-	return nil, errors.New("GetSubscriptionsByTgID is not implemented")
 }
 
 func (s *ApiClient) GetClinetByTgID(telegramID int64) ([]ClientData, error) {
@@ -114,10 +103,6 @@ func (s *ApiClient) GetLinks(email string) ([]string, error) {
 	data, err := types.DecodeResponse[[]string](resp.Body)
 
 	return data.Obj, err
-}
-
-func (s *ApiClient) NewSubscription(telegramID int64) (string, error) {
-	return "", nil
 }
 
 func (s *ApiClient) do(req *http.Request) (*http.Response, error) {

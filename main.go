@@ -44,7 +44,7 @@ func main() {
 
 func run() error {
 	slog.SetLogLoggerLevel(slog.LevelDebug)
-	logger.Init("local", slog.LevelDebug)
+	logger.Init(slog.LevelDebug)
 	log := slog.Default()
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)

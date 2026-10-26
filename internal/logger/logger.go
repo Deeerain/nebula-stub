@@ -4,7 +4,6 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
-	"strings"
 )
 
 type Logger interface {
@@ -13,9 +12,7 @@ type Logger interface {
 	Error(msg string, args ...any)
 }
 
-func Init(env string, minLevel slog.Level) {
-	var handler slog.Handler
-
+func Init(minLevel slog.Level) {
 	opts := &slog.HandlerOptions{
 		Level:     minLevel,
 		AddSource: true,
@@ -29,13 +26,7 @@ func Init(env string, minLevel slog.Level) {
 		},
 	}
 
-	if strings.ToLower(env) == "prod" || strings.ToLower(env) == "production" {
-		handler = slog.NewTextHandler(os.Stdout, opts)
-	} else {
-		handler = slog.NewTextHandler(os.Stdout, opts)
-	}
-
-	slog.SetDefault(slog.New(handler))
+	slog.SetDefault(slog.New(slog.NewTextHandler(os.Stdout, opts)))
 }
 
 func shortPath(path string) string {

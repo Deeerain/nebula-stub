@@ -8,7 +8,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 const TokenTTL = 24 * time.Hour
@@ -32,46 +32,36 @@ func loadSecret() []byte {
 }
 
 type TokenData struct {
-	ID          int64  `json:"id"`
-	ClientEmail string `json:"clientID"`
-	ExpiresAt   int64  `json:"exp"`
-}
-
-func (t TokenData) Valid() error {
-	if t.ExpiresAt == 0 {
-		return errors.New("token has no expiration")
-	}
-
-	if time.Now().Unix() > t.ExpiresAt {
-		return errors.New("token expired")
-	}
-
-	return nil
+	ID int64 `json:"id"`
+	jwt.RegisteredClaims
 }
 
 func ValidateToken(tokenString string) (*TokenData, error) {
-	token, err := jwt.ParseWithClaims(tokenString, &TokenData{}, func(t *jwt.Token) (any, error) {
-		if t.Method != jwt.SigningMethodHS256 {
-			return nil, errors.New("unexpected signing method")
-		}
-
-		return secret, nil
-	})
-
+	token, err := jwt.ParseWithClaims(
+		tokenString,
+		&TokenData{},
+		func(*jwt.Token) (any, error) { return secret, nil },
+		jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Alg()}),
+	)
 	if err != nil {
 		return nil, err
 	}
 
-	if claims, ok := token.Claims.(*TokenData); ok && token.Valid {
-		return claims, nil
+	claims, ok := token.Claims.(*TokenData)
+	if !ok || !token.Valid {
+		return nil, errors.New("invalid token")
 	}
 
-	return nil, errors.New("invalid token")
+	if claims.ExpiresAt == nil {
+		return nil, errors.New("token has no expiration")
+	}
+
+	return claims, nil
 }
 
 func GenerateToken(data TokenData) (string, error) {
-	if data.ExpiresAt == 0 {
-		data.ExpiresAt = time.Now().Add(TokenTTL).Unix()
+	if data.ExpiresAt == nil {
+		data.ExpiresAt = jwt.NewNumericDate(time.Now().Add(TokenTTL))
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, data)

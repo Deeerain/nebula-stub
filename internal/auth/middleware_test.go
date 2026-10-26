@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/deeerain/nebula-stub/internal/auth"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 func TestMiddlewareRejectsBadTokensWithoutPanic(t *testing.T) {
@@ -27,8 +28,10 @@ func TestMiddlewareRejectsBadTokensWithoutPanic(t *testing.T) {
 	}
 
 	expired, err := auth.GenerateToken(auth.TokenData{
-		ID:        42,
-		ExpiresAt: time.Now().Add(-time.Hour).Unix(),
+		ID: 42,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(-time.Hour)),
+		},
 	})
 	if err != nil {
 		t.Fatalf("failed to generate expired token: %v", err)
