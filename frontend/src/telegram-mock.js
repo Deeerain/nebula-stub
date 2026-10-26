@@ -1,7 +1,7 @@
 export function initTelegramMock() {
     if (!window.Telegram) window.Telegram = {}
     const mockWebApp = {
-        initData: "abcdefg",
+        initData: "dev",
         initDataUnsafe: {
             user: {
                 id: 1,

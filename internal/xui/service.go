@@ -24,9 +24,16 @@ func (s *XuiService) GetClientByTgID(id int64) (client.ProxyClient, error) {
 		return proxyClient, nil
 	}
 
+	c := cd[0]
 	proxyClient = client.ProxyClient{
-		TgID:  cd[0].Client.TgID,
-		SubID: cd[0].Client.SubID,
+		TgID:        c.Client.TgID,
+		SubID:       c.Client.SubID,
+		Email:       c.Client.Email,
+		Enable:      c.Client.Enable,
+		LimitIP:     c.Client.LimitIP,
+		LimitHwid:   c.Client.LimitHwid,
+		ExpiryTime:  c.Client.ExpiryTime,
+		UsedTraffic: c.UsedTraffic,
 	}
 
 	return proxyClient, nil

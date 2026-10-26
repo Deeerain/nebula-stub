@@ -20,6 +20,8 @@ function LoadScript(){
           tgImport.onload = () => resolve()
           tgImport.onerror = (err) => reject(err);
           document.head.appendChild(tgImport)   
+      } else {
+          resolve()
       }
   })
 }
@@ -32,6 +34,7 @@ onMounted(async () => {
 
     console.log(userStore.tg)
   } catch (e) {
+    console.error("failed to init mini app:", e)
   }
 })
 </script>

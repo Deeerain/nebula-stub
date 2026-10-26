@@ -28,6 +28,11 @@ func GetClient(ctx context.Context, service ClientService) http.HandlerFunc {
 			return
 		}
 
+		if proxyClient.SubID == "" {
+			http.Error(w, "Client not found", http.StatusNotFound)
+			return
+		}
+
 		if err := server.WriteJSON(w, proxyClient); err != nil {
 			slog.Error("failed to write client response", "error", err)
 		}

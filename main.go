@@ -84,8 +84,13 @@ func main() {
 	server.Handle("/api/connect/{app}", useAuth(subscription.ConnectHandler(subEndpoint, xrayService)))
 	server.Handle("/api/subscriptions/{id}", useAuth(subscription.GetLinks(ctx, xrayService)))
 
+	devMode := os.Getenv("STUB_DEV") == "1"
+	if devMode {
+		slog.Warn(`STUB_DEV is enabled: /api/auth accepts the "dev" initData`)
+	}
+
 	handlers := map[string]http.HandlerFunc{
-		"/api/auth":   auth.AuthHandler(botToken),
+		"/api/auth":   auth.AuthHandler(botToken, devMode),
 		"/tgwebhook":  handlers.WebHook(telegramService),
 		"/api/status": handlers.GetContainerStatuses(dockerService),
 	}

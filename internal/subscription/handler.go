@@ -70,7 +70,11 @@ func ConnectHandler(subscriptionURL url.URL, service ClientService) http.Handler
 		}
 
 		subLink := subscriptionURL.JoinPath(proxyClient.SubID)
+		deeplink := fmt.Sprintf(appDeepLink, subLink.String())
 
-		http.Redirect(w, r, fmt.Sprintf(appDeepLink, subLink.String()), http.StatusFound)
+		w.Header().Set("Content-Type", "application/json")
+		if err := json.NewEncoder(w).Encode(map[string]string{"deeplink": deeplink}); err != nil {
+			slog.Error("failed to write deeplink response", "error", err)
+		}
 	}
 }

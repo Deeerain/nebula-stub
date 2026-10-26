@@ -3,50 +3,41 @@ import { onMounted } from 'vue';
 import { useUserStore } from '../store/user';
 import SubscriptionInfo from './SubscriptionInfo.vue';
 
-import { useMiniApp } from 'vue-tg'
-
 const userStore = useUserStore()
 
-const miniApp = useMiniApp()
-
-const connect = async () => {
-    userStore.tg.openLink("/api/connect/")
+async function reload() {
+    await userStore.loadUserData()
+    await userStore.loadSubscriptions()
 }
 
-onMounted(async () => {
-    try {
-        await userStore.loadUserData()
-    } finally {
-        try {
-            await userStore.loadSubscriptions()
-        } catch(err) {
-            console.error(err)
-        }
-    }
-})
+function connect(app) {
+    userStore.connect(app).catch((err) => console.error(err))
+}
 
+onMounted(reload)
 </script>
 
 <template>
     <div class="profile">
         <small v-if="userStore.username">@{{ userStore.username }}</small>
         <div class="profile__bio">
-            <img :src="userStore.photo_url" alt="avatar">
+            <img v-if="userStore.photo_url" :src="userStore.photo_url" alt="avatar">
             <h1>{{ userStore.first_name }} {{ userStore.last_name }}</h1>
-            <button>
+            <button type="button" title="Обновить" @click="reload">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.73-5.73"/>
                 </svg>
             </button>
         </div>
     </div>
-    <div>
-        <button @click="connect()">Connect</button>
+    <div class="connect">
+        <button type="button" :disabled="!userStore.client" @click="connect('incy')">Connect Incy</button>
+        <button type="button" :disabled="!userStore.client" @click="connect('happ')">Connect Happ</button>
     </div>
     <SubscriptionInfo/>
     <div class="subscriptions">
-        <div class="subscription__item subscription" v-for="sub, subIndex in userStore.get_links" :key="subIndex">
-            {{ subIndex}} {{ sub }}
+        <div class="subscription" v-for="(link, index) in userStore.get_links" :key="index">
+            {{ link }}
         </div>
     </div>
 </template>
@@ -86,6 +77,24 @@ onMounted(async () => {
     border-radius: 5px;
 }
 
+.connect {
+    display: flex;
+    gap: 1rem;
+}
+
+.connect button {
+    flex-grow: 1;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #555;
+    background: #3f3f3f;
+}
+
+.connect button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 .subscriptions {
     display: flex;
     flex-direction: column;
@@ -97,7 +106,6 @@ onMounted(async () => {
     border: none;
     background: none;
 }
-
 
 .subscription {
     background: #3f3f3f;
