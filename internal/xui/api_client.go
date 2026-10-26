@@ -2,6 +2,7 @@ package xui
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -44,9 +45,7 @@ type ApiClient struct {
 }
 
 func (s *ApiClient) GetSubscriptionsByTgID(telegramID int64) ([]string, error) {
-	//TODO
-
-	return nil, nil
+	return nil, errors.New("GetSubscriptionsByTgID is not implemented")
 }
 
 func (s *ApiClient) GetClinetByTgID(telegramID int64) ([]ClientData, error) {

@@ -5,6 +5,7 @@ services:
     environment:
       - STUB_TELEMT_HOST=telemt
       - XUI_URL=${XUI_URL}
+      - SUBSCRIPTION_BASE_URL=${SUBSCRIPTION_BASE_URL}
       - XUI_API_TOKEN=${XUI_API_TOKEN:-}
       - XRAY_API_TOKEN=${XRAY_API_TOKEN:-}
       - BOT_TOKEN=${BOT_TOKEN:-}

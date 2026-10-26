@@ -2,6 +2,7 @@ package service
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log/slog"
@@ -60,13 +61,17 @@ func (t *telegramServie) request(httpMethod string, url string, body io.Reader) 
 }
 
 func NewTelegramService(token string) (Telegram, error) {
-	baseUrl, err := url.Parse(fmt.Sprintf("https://api.telegram.org/bot%s", token))
+	if token == "" {
+		return nil, errors.New("telegram bot token is empty")
+	}
+
+	baseURL, err := url.Parse(fmt.Sprintf("https://api.telegram.org/bot%s", token))
 	if err != nil {
-		return nil, fmt.Errorf("Failed to parse base url: %w", err)
+		return nil, fmt.Errorf("parse base url: %w", err)
 	}
 
 	return &telegramServie{
 		httpClient: &http.Client{Timeout: 15 * time.Second},
-		baseURL:    baseUrl,
+		baseURL:    baseURL,
 	}, nil
 }

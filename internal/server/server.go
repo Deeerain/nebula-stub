@@ -1,16 +1,21 @@
 package server
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/fs"
 	"log/slog"
 	"net"
 	"net/http"
+	"time"
 
 	"github.com/deeerain/nebula-stub/internal/logger"
 	"github.com/deeerain/nebula-stub/internal/middlewares"
 )
+
+const shutdownTimeout = 10 * time.Second
 
 type Server struct {
 	logger      logger.Logger
@@ -49,16 +54,48 @@ func (s *Server) HandleFS(pattern string, fs fs.FS) {
 	s.mux.Handle(pattern, http.FileServer(http.FS(fs)))
 }
 
-func (s *Server) Run(listen string) error {
-	listenr, err := net.Listen("tcp", listen)
+func (s *Server) Run(ctx context.Context, listen string) error {
+	listener, err := net.Listen("tcp", listen)
 	if err != nil {
-		return fmt.Errorf("Failed to create listener: %w", err)
+		return fmt.Errorf("create listener: %w", err)
 	}
 
-	s.Logger().Info("Server starting", "bind", listenr.Addr())
+	httpServer := &http.Server{
+		Handler:           middlewares.Chain(s.mux, s.middlewares...),
+		ReadHeaderTimeout: 5 * time.Second,
+	}
 
-	chain := middlewares.Chain(s.mux, s.middlewares...)
-	return http.Serve(listenr, chain)
+	serveErr := make(chan error, 1)
+
+	go func() {
+		s.Logger().Info("server starting", "bind", listener.Addr().String())
+
+		if err := httpServer.Serve(listener); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			serveErr <- err
+		}
+
+		close(serveErr)
+	}()
+
+	select {
+	case err, ok := <-serveErr:
+		if ok && err != nil {
+			return fmt.Errorf("serve: %w", err)
+		}
+
+		return nil
+	case <-ctx.Done():
+		s.Logger().Info("server shutting down")
+
+		shutdownCtx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
+		defer cancel()
+
+		if err := httpServer.Shutdown(shutdownCtx); err != nil {
+			return fmt.Errorf("shutdown server: %w", err)
+		}
+
+		return nil
+	}
 }
 
 func WriteJSON(w http.ResponseWriter, obj any) error {

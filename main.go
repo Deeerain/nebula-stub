@@ -3,11 +3,14 @@ package main
 import (
 	"context"
 	"embed"
+	"errors"
+	"fmt"
 	"io/fs"
 	"log/slog"
-	"net/http"
 	"net/url"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/deeerain/nebula-stub/internal/auth"
 	"github.com/deeerain/nebula-stub/internal/client"
@@ -33,83 +36,91 @@ func Assets() fs.FS {
 }
 
 func main() {
+	if err := run(); err != nil {
+		slog.Error("application stopped", "error", err)
+		os.Exit(1)
+	}
+}
+
+func run() error {
 	slog.SetLogLoggerLevel(slog.LevelDebug)
 	logger.Init("local", slog.LevelDebug)
-	logger := slog.Default()
-	var err error
+	log := slog.Default()
 
-	ctx := context.Background()
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
 
-	frontednFS := Assets()
+	frontendFS := Assets()
 
-	useAuth := auth.AuthMiddleware()
+	xuiURL, err := absoluteURL(env("XUI_URL"))
+	if err != nil {
+		return fmt.Errorf("invalid XUI_URL: %w", err)
+	}
 
-	server := server.New(logger)
-	server.Use(middlewares.LoggingMiddleware(logger))
+	subBaseURL, err := absoluteURL(env("SUBSCRIPTION_BASE_URL"))
+	if err != nil {
+		return fmt.Errorf("invalid SUBSCRIPTION_BASE_URL: %w", err)
+	}
 
 	dockerService, err := service.NewDockerService()
 	if err != nil {
-		slog.Warn("docker service is not initialized", "error", err)
+		log.Warn("docker service is not initialized", "error", err)
 	}
 	if dockerService != nil {
 		defer dockerService.Close()
 	}
 
-	xuiURL, err := url.Parse(env("XUI_URL"))
-	if err != nil || xuiURL.Host == "" {
-		slog.Error(
-			"XUI_URL must be an absolute URL, for example https://panel.example.com",
-			"value", os.Getenv("XUI_URL"),
-		)
-	}
-
-	xuiToken := env("XUI_API_TOKEN", "XRAY_API_TOKEN")
-	xuiClient := xui.NewApiClient(xuiURL, xuiToken)
+	xuiClient := xui.NewApiClient(xuiURL, env("XUI_API_TOKEN", "XRAY_API_TOKEN"))
 	xrayService := xui.NewXuiService(xuiClient)
 
 	botToken := env("TELEGRAM_BOT_TOKEN", "BOT_TOKEN")
-	// telegramWebhookUrl := os.Getenv("TELEGRAM_WEBHOOK")
 
 	telegramService, err := service.NewTelegramService(botToken)
 	if err != nil {
-		slog.Warn("telegram service not inited", "error", err)
+		log.Warn("telegram service is not initialized", "error", err)
 	}
 
-	subEndpoint := url.URL{
-		Scheme: "https",
-		Host:   "nebulasrv.ignorelist.com:8822",
-		Path:   "/target-subscribes"}
+	useAuth := auth.AuthMiddleware()
 
-	server.Handle("/api/client", useAuth(client.GetClient(ctx, xrayService)))
-	server.Handle("/api/connect/{app}", useAuth(subscription.ConnectHandler(subEndpoint, xrayService)))
-	server.Handle("/api/subscriptions/{id}", useAuth(subscription.GetLinks(ctx, xrayService)))
+	srv := server.New(log)
+	srv.Use(middlewares.LoggingMiddleware(log))
+
+	srv.Handle("/api/client", useAuth(client.GetClient(ctx, xrayService)))
+	srv.Handle("/api/connect/{app}", useAuth(subscription.ConnectHandler(*subBaseURL, xrayService)))
+	srv.Handle("/api/subscriptions/{id}", useAuth(subscription.GetLinks(ctx, xrayService)))
 
 	devMode := os.Getenv("STUB_DEV") == "1"
 	if devMode {
-		slog.Warn(`STUB_DEV is enabled: /api/auth accepts the "dev" initData`)
+		log.Warn(`STUB_DEV is enabled: /api/auth accepts the "dev" initData`)
 	}
 
-	handlers := map[string]http.HandlerFunc{
-		"/api/auth":   auth.AuthHandler(botToken, devMode),
-		"/tgwebhook":  handlers.WebHook(telegramService),
-		"/api/status": handlers.GetContainerStatuses(dockerService),
+	srv.HandleFunc("/api/auth", auth.AuthHandler(botToken, devMode))
+	srv.HandleFunc("/tgwebhook", handlers.WebHook(telegramService))
+	srv.HandleFunc("/api/status", handlers.GetContainerStatuses(dockerService))
+	srv.HandleFS("/", frontendFS)
+
+	if err := srv.Run(ctx, ":8080"); err != nil {
+		return fmt.Errorf("run server: %w", err)
 	}
 
-	for p, h := range handlers {
-		server.HandleFunc(p, h)
-	}
-	server.HandleFS("/", frontednFS)
+	return nil
+}
 
-	// if err := telegramService.SetWebhook(telegramWebhookUrl); err != nil {
-	// 	slog.Warn("telegram webhook not set", "error", err)
-	// }
-
-	// Run
-	if err = server.Run(":8080"); err != nil {
-		logger.Error("failed to start listener", "error", err)
+func absoluteURL(raw string) (*url.URL, error) {
+	if raw == "" {
+		return nil, errors.New("value is not set")
 	}
 
-	<-ctx.Done()
+	parsed, err := url.Parse(raw)
+	if err != nil {
+		return nil, fmt.Errorf("parse %q: %w", raw, err)
+	}
+
+	if parsed.Scheme == "" || parsed.Host == "" {
+		return nil, fmt.Errorf("must be an absolute URL, got %q", raw)
+	}
+
+	return parsed, nil
 }
 
 func env(keys ...string) string {
