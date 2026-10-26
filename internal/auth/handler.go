@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/deeerain/nebula-stub/internal"
+	"github.com/deeerain/nebula-stub/internal/server"
 )
 
 const (
@@ -17,34 +18,33 @@ const (
 func AuthHandler(botToken string, devMode bool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			server.WriteError(w, http.StatusMethodNotAllowed, "method not allowed")
 			return
 		}
 
 		var req AuthRequestBody
 
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			http.Error(w, "Bad request", http.StatusBadRequest)
+			server.WriteError(w, http.StatusBadRequest, "bad request")
 			return
 		}
 
 		var userData TGUserData
 
 		if devMode && req.InitData == devInitData {
-			slog.Warn("Dev auth is used", "user_id", devUserID)
+			slog.Warn("dev auth is used", "user_id", devUserID)
 			userData.ID = devUserID
 		} else {
 			data, err := internal.ValidateTelegramInitData(botToken, req.InitData, 24*time.Hour)
 			if err != nil {
-				w.Header().Set("Content-Type", "application/json")
-				w.WriteHeader(http.StatusUnauthorized)
-				json.NewEncoder(w).Encode(map[string]string{"error": "Invalid Telegram Data"})
-				slog.Error("Failed to validate init data", "error", err)
+				slog.Error("failed to validate init data", "error", err)
+				server.WriteError(w, http.StatusUnauthorized, "invalid telegram data")
 				return
 			}
 
 			if err := json.Unmarshal([]byte(data.Get("user")), &userData); err != nil {
-				http.Error(w, err.Error(), http.StatusBadRequest)
+				slog.Error("failed to parse telegram user data", "error", err)
+				server.WriteError(w, http.StatusBadRequest, "invalid user data")
 				return
 			}
 		}
@@ -52,14 +52,13 @@ func AuthHandler(botToken string, devMode bool) http.HandlerFunc {
 		sessionToken, err := GenerateToken(TokenData{
 			ID: userData.ID,
 		})
-
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			slog.Error("failed to generate token", "error", err)
+			server.WriteError(w, http.StatusInternalServerError, "internal server error")
 			return
 		}
 
-		w.Header().Set("Content-Type", "application/json")
-		if err := json.NewEncoder(w).Encode(AuthResponse{Token: sessionToken}); err != nil {
+		if err := server.WriteJSON(w, AuthResponse{Token: sessionToken}); err != nil {
 			slog.Error("failed to write auth response", "error", err)
 		}
 	}

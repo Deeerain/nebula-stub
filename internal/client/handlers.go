@@ -17,18 +17,19 @@ func GetClient(ctx context.Context, service ClientService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		userTgID, ok := auth.UserIDFromContext(r.Context())
 		if !ok {
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			server.WriteError(w, http.StatusUnauthorized, "unauthorized")
 			return
 		}
 
 		proxyClient, err := service.GetClientByTgID(userTgID)
 		if err != nil {
-			slog.Error("failed to get client", "error", err, "tg_id", userTgID)
+			server.WriteError(w, http.StatusBadRequest, "failed to get proxy client")
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
 			return
 		}
 
 		if proxyClient.SubID == "" {
+			server.WriteError(w, http.StatusInternalServerError, "sub id is null")
 			http.Error(w, "Client not found", http.StatusNotFound)
 			return
 		}

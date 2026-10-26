@@ -103,6 +103,20 @@ func WriteJSON(w http.ResponseWriter, obj any) error {
 	return json.NewEncoder(w).Encode(obj)
 }
 
+type errorResponse struct {
+	Error string `json:"error"`
+}
+
+// WriteError writes a JSON error body and sets the response status.
+func WriteError(w http.ResponseWriter, status int, message string) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+
+	if err := json.NewEncoder(w).Encode(errorResponse{Error: message}); err != nil {
+		slog.Error("failed to write error response", "error", err)
+	}
+}
+
 func ReadJSON(r *http.Request, obj any) error {
 	return json.NewDecoder(r.Body).Decode(obj)
 }
