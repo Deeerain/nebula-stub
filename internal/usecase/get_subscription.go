@@ -10,7 +10,7 @@ type GetSubscriptionUseCase struct {
 
 // Execute implements [handlers.GetSubscriptionUseCase].
 func (g *GetSubscriptionUseCase) Execute(telegramID int64) ([]string, error) {
-	panic("unimplemented")
+	return g.xuiService.GetSubscriptionsByTgID(telegramID)
 }
 
 func NewGetSubscriptionUseCase(xuiService xuiService) *GetSubscriptionUseCase {

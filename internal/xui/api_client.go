@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/deeerain/nebula-stub/internal/xui/types"
 )
@@ -55,6 +56,7 @@ func (s *ApiClient) GetClinetByTgID(telegramID int64) ([]ClientData, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute: %w", err)
 	}
+	defer resp.Body.Close()
 
 	var data types.ApiResponse[[]ClientData]
 
@@ -75,6 +77,7 @@ func (s *ApiClient) GetLinksByEmail(email string) ([]string, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to get response: %w", err)
 	}
+	defer resp.Body.Close()
 
 	var data types.ApiResponse[[]string]
 
@@ -93,6 +96,7 @@ func (s *ApiClient) GetSubLinks(subId string) ([]string, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to get response: %w", err)
 	}
+	defer resp.Body.Close()
 
 	data, err := types.DecodeResponse[[]string](resp.Body)
 
@@ -106,6 +110,7 @@ func (s *ApiClient) GetLinks(email string) ([]string, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to get response: %w", err)
 	}
+	defer resp.Body.Close()
 
 	data, err := types.DecodeResponse[[]string](resp.Body)
 
@@ -120,21 +125,38 @@ func (s *ApiClient) do(req *http.Request) (*http.Response, error) {
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", s.apiToken))
 	req.Header.Set("Content-Type", "application/json")
 
-	slog.Info("api request", "url", req.URL, "auth", req.Header.Get("Authorization"), "ct", req.Header.Get("Content-type"))
+	slog.Debug("api request", "method", req.Method, "url", req.URL)
 
 	return s.httpClient.Do(req)
 }
 
-func (s *ApiClient) get(url string) (*http.Response, error) {
-	req, err := http.NewRequest(http.MethodGet, url, nil)
+func (s *ApiClient) get(rawURL string) (*http.Response, error) {
+	req, err := http.NewRequest(http.MethodGet, rawURL, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+
 	resp, err := s.do(req)
-	return resp, err
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode < http.StatusOK || resp.StatusCode >= http.StatusMultipleChoices {
+		resp.Body.Close()
+		return nil, fmt.Errorf("unexpected response status: %s", resp.Status)
+	}
+
+	return resp, nil
 }
 
 func NewApiClient(baseURL *url.URL, apiToken string) *ApiClient {
+	if baseURL == nil {
+		baseURL = &url.URL{}
+	}
+
 	return &ApiClient{
 		baseURL:    baseURL,
-		httpClient: http.DefaultClient,
+		httpClient: &http.Client{Timeout: 15 * time.Second},
 		apiToken:   apiToken,
 	}
 }

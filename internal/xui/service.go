@@ -3,6 +3,8 @@ package xui
 import (
 	"fmt"
 	"sync"
+
+	"github.com/deeerain/nebula-stub/internal/client"
 )
 
 type XuiService struct {
@@ -10,13 +12,34 @@ type XuiService struct {
 	lock      sync.Mutex
 }
 
-func (s *XuiService) GetClient(tgId TgID) (any, error) {
-	cd, err := s.apiClient.GetClinetByTgID(int64(tgId))
+func (s *XuiService) GetClientByTgID(id int64) (client.ProxyClient, error) {
+	var proxyClient client.ProxyClient
+
+	cd, err := s.apiClient.GetClinetByTgID(id)
 	if err != nil {
-		return nil, fmt.Errorf("api error: %w", err)
+		return proxyClient, fmt.Errorf("api error: %w", err)
 	}
 
-	return cd, nil
+	if len(cd) <= 0 {
+		return proxyClient, nil
+	}
+
+	proxyClient = client.ProxyClient{
+		TgID:  cd[0].Client.TgID,
+		SubID: cd[0].Client.SubID,
+	}
+
+	return proxyClient, nil
+}
+
+// GetLinksBySubID implements [subscription.SubscriptionService].
+func (s *XuiService) GetLinksBySubID(subID string) ([]string, error) {
+	links, err := s.apiClient.GetSubLinks(subID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get subscription links: %w", err)
+	}
+
+	return links, nil
 }
 
 func (s *XuiService) GetSubscription(subId SubscriptionID) (any, error) {

@@ -28,6 +28,8 @@ RUN go build main.go
 # APPLICTION
 FROM alpine
 
+RUN apk add --no-cache ca-certificates tzdata
+
 ENV STUB_HOST=${STUB_HOST:-0.0.0.0}
 ENV STUB_PORT=${STUB_PORT:-8080}
 ENV STUB_TELEMT_HOST=${STUB_TELEMT_HOST:-localhost:9091}
@@ -35,4 +37,4 @@ ENV STUB_TELEMT_HOST=${STUB_TELEMT_HOST:-localhost:9091}
 WORKDIR /app
 
 COPY --from=server-build /app/main ./
-ENTRYPOINT $PWD/main
+ENTRYPOINT ["/app/main"]

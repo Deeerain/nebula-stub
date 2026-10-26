@@ -3,8 +3,15 @@ import { onMounted } from 'vue';
 import { useUserStore } from '../store/user';
 import SubscriptionInfo from './SubscriptionInfo.vue';
 
+import { useMiniApp } from 'vue-tg'
 
 const userStore = useUserStore()
+
+const miniApp = useMiniApp()
+
+const connect = async () => {
+    userStore.tg.openLink("/api/connect/")
+}
 
 onMounted(async () => {
     try {
@@ -32,6 +39,9 @@ onMounted(async () => {
                 </svg>
             </button>
         </div>
+    </div>
+    <div>
+        <button @click="connect()">Connect</button>
     </div>
     <SubscriptionInfo/>
     <div class="subscriptions">

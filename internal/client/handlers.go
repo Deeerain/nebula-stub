@@ -1,0 +1,35 @@
+package client
+
+import (
+	"context"
+	"log/slog"
+	"net/http"
+
+	"github.com/deeerain/nebula-stub/internal/auth"
+	"github.com/deeerain/nebula-stub/internal/server"
+)
+
+type ClientService interface {
+	GetClientByTgID(id int64) (ProxyClient, error)
+}
+
+func GetClient(ctx context.Context, service ClientService) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		userTgID, ok := auth.UserIDFromContext(r.Context())
+		if !ok {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		proxyClient, err := service.GetClientByTgID(userTgID)
+		if err != nil {
+			slog.Error("failed to get client", "error", err, "tg_id", userTgID)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+
+		if err := server.WriteJSON(w, proxyClient); err != nil {
+			slog.Error("failed to write client response", "error", err)
+		}
+	}
+}

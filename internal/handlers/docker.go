@@ -1,24 +1,29 @@
 package handlers
 
 import (
-	"context"
+	"log/slog"
 	"net/http"
 
 	"github.com/deeerain/nebula-stub/internal/server"
 	"github.com/deeerain/nebula-stub/internal/service"
 )
 
-func GetContainerStatuses(ctx context.Context, dockerService service.DockerService) http.HandlerFunc {
+func GetContainerStatuses(dockerService service.DockerService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if dockerService == nil {
-			http.NotFound(w, r)
+			http.Error(w, "Docker service is unavailable", http.StatusServiceUnavailable)
+			return
 		}
 
-		containers, err := dockerService.GetContainerList(ctx)
+		containers, err := dockerService.GetContainerList(r.Context())
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusServiceUnavailable)
+			slog.Error("failed to get container list", "error", err)
+			http.Error(w, "Docker service is unavailable", http.StatusServiceUnavailable)
+			return
 		}
 
-		server.WriteJSON(w, containers)
+		if err := server.WriteJSON(w, containers); err != nil {
+			slog.Error("failed to write container list", "error", err)
+		}
 	}
 }

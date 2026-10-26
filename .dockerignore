@@ -1,5 +1,10 @@
 /node_modules
+**/node_modules
+/dist
+/frontend/dist
 /static
+/.git
+.env
 Dockerfile
 *.md
 *.toml

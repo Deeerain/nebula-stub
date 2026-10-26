@@ -52,6 +52,17 @@ export const useUserStore = defineStore('user', {
             } catch(err) {
                 console.error(err)
             }
+        },
+        async connect(client_name) {
+            try {
+                const response = await axios.get(`/connect/${client_name}`, {
+                    headers: {
+                        Authorization: `Bearer ${this.tg.initData}`
+                    }
+                })
+            } catch(err) {
+                console.error(err)
+            }
         }
     },
     getters: {
