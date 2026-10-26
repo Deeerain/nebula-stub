@@ -24,7 +24,7 @@ func GetClient(ctx context.Context, service ClientService) http.HandlerFunc {
 		proxyClient, err := service.GetClientByTgID(userTgID)
 		if err != nil {
 			server.WriteError(w, http.StatusBadRequest, "failed to get proxy client")
-			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			slog.Error("faield to get client", "userTgID", userTgID, "message", err.Error())
 			return
 		}
 

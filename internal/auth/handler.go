@@ -24,7 +24,7 @@ func AuthHandler(botToken string, devMode bool) http.HandlerFunc {
 
 		var req AuthRequestBody
 
-		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		if err := server.ReadJSON(r, &req); err != nil {
 			server.WriteError(w, http.StatusBadRequest, "bad request")
 			return
 		}
