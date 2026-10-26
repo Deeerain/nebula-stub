@@ -88,6 +88,7 @@ func run() error {
 	srv.Handle("/api/client", useAuth(client.GetClient(ctx, xrayService)))
 	srv.Handle("/api/connect/{app}", useAuth(subscription.ConnectHandler(*subBaseURL, xrayService)))
 	srv.Handle("/api/subscriptions/{id}", useAuth(subscription.GetLinks(ctx, xrayService)))
+	// srv.Handle("/api/payments/invoice", useAuth(payments.InvoiceHandler(paymentService)))
 
 	devMode := os.Getenv("STUB_DEV") == "1"
 	if devMode {

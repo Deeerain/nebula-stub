@@ -1,6 +1,7 @@
 package service
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -11,8 +12,37 @@ import (
 	"time"
 )
 
+type Curency int
+
+const (
+	Stars Curency = iota
+)
+
+var currencyName = map[Curency]string{
+	Stars: "XTR",
+}
+
+func (c Curency) String() string {
+	return currencyName[c]
+}
+
+type CreateInvoiceLink struct {
+	Title         string                   `json:"title"`
+	Description   string                   `json:"description"`
+	Payload       string                   `json:"payload"`
+	ProviderToken string                   `json:"provider_token"`
+	Currency      string                   `json:"currency"`
+	Prices        []CreateInvoiceLinkPrice `json:"prices"`
+}
+
+type CreateInvoiceLinkPrice struct {
+	Label  string `json:"label"`
+	Amount int64  `json:"amount"`
+}
+
 type Telegram interface {
 	SetWebhook(url string) error
+	CreateInvoiceLink(data CreateInvoiceLink) (string, error)
 }
 
 type telegramServie struct {
@@ -58,6 +88,46 @@ func (t *telegramServie) request(httpMethod string, url string, body io.Reader) 
 	}
 
 	return t.httpClient.Do(req)
+}
+
+func (t *telegramServie) CreateInvoiceLink(data CreateInvoiceLink) (string, error) {
+	u := t.baseURL.JoinPath("createInvoiceLink")
+
+	payload, err := json.Marshal(data)
+	if err != nil {
+		return "", fmt.Errorf("failed to marshal invoice data: %w", err)
+	}
+
+	req, err := http.NewRequest(http.MethodPost, u.String(), bytes.NewReader(payload))
+	if err != nil {
+		return "", fmt.Errorf("failed to create invoice request: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := t.httpClient.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("failed to create invoice link: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		body, _ := io.ReadAll(resp.Body)
+		return "", fmt.Errorf("failed to create invoice link: %s", string(body))
+	}
+
+	var respData struct {
+		Ok          bool   `json:"ok"`
+		Result      string `json:"result"`
+		Description string `json:"description"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&respData); err != nil {
+		return "", fmt.Errorf("failed to decode invoice link response: %w", err)
+	}
+	if !respData.Ok {
+		return "", fmt.Errorf("telegram error: %s", respData.Description)
+	}
+
+	return respData.Result, nil
 }
 
 func NewTelegramService(token string) (Telegram, error) {
