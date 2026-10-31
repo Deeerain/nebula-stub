@@ -29,8 +29,7 @@ func GetClient(ctx context.Context, service ClientService) http.HandlerFunc {
 		}
 
 		if proxyClient.SubID == "" {
-			server.WriteError(w, http.StatusInternalServerError, "sub id is null")
-			http.Error(w, "Client not found", http.StatusNotFound)
+			server.WriteError(w, http.StatusNotFound, "Client not found")
 			return
 		}
 

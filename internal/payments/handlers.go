@@ -9,7 +9,7 @@ import (
 )
 
 type PaymentService interface {
-	CreateInvoiceLink() (string, error)
+	CreateInvoiceLink(plan Plan, userID int64) (string, error)
 }
 
 func InvoiceHandler(paymentService PaymentService) http.HandlerFunc {
@@ -26,7 +26,7 @@ func InvoiceHandler(paymentService PaymentService) http.HandlerFunc {
 			return
 		}
 
-		link, _ := paymentService.CreateInvoiceLink()
+		link, _ := paymentService.CreateInvoiceLink(invoiceRequest.Plan, userID)
 		slog.Debug("Created invoice link", "user", userID, "link", link)
 
 		if err := server.WriteJSON(w, link); err != nil {

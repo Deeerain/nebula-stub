@@ -3,6 +3,7 @@ import { onMounted, ref } from 'vue';
 import ServiceStatus from './components/ServiceStatus.vue';
 import MiniApp from './components/MiniApp.vue';
 import { useUserStore } from './store/user.js';
+import Stub from './components/Stub.vue';
 
 const userStore = useUserStore()
 
@@ -42,7 +43,7 @@ onMounted(async () => {
 <template>
   <main>
     <MiniApp v-if="userStore.tgInited"/>
-    <ServiceStatus v-else/>
+    <Stub v-else/>
   </main>
 </template>
 
